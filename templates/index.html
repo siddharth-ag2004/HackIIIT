@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Recognition</title>
+</head>
+<body>
+    <h1>Face Recognition</h1>
+    <div>
+        <img src="{{ url_for('video_feed') }}" alt="Webcam Feed">
+    </div>
+    <div>
+        {% if siddharth_recognized %}
+            <p>Siddharth Recognized!</p>
+            <img src="{{ url_for('static', filename='known_people/siddharth.jpeg') }}" alt="Siddharth">
+        {% endif %}
+        {% if bhaskar_recognized %}
+            <p>Bhaskar Recognized!</p>
+            <img src="{{ url_for('static', filename='known_people/bhaskar.jpeg') }}" alt="Bhaskar">
+        {% endif %}
+    </div>
+</body>
+</html>
