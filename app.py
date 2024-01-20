@@ -1,72 +1,95 @@
 from flask import Flask, render_template, Response
 import cv2
+import numpy as np
+import pickle
 import face_recognition
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import db
+from firebase_admin import storage
+import numpy as np
+from datetime import datetime
 
+cred = credentials.Certificate("serviceaccountkey.json")
+firebase_admin.initialize_app(cred, {
+    'databaseURL': "https://imagedata-204da-default-rtdb.firebaseio.com/",
+    'storageBucket': "imagedata-204da.appspot.com"
+})
+
+bucket = storage.bucket()
 app = Flask(__name__)
 
-# Load known images and their encodings
-known_images = []
-known_encodings = []
+file = open('EncodeFile.p', 'rb')
+encodeListKnownWithIds = pickle.load(file)
+file.close()
+encodeListKnown, studentIds = encodeListKnownWithIds
 
-known_images.append(face_recognition.load_image_file("./known_people/siddharth.jpeg"))
-known_encodings.append(face_recognition.face_encodings(known_images[0])[0])
-
-known_images.append(face_recognition.load_image_file("./known_people/bhaskar.jpeg"))
-known_encodings.append(face_recognition.face_encodings(known_images[1])[0])
-
-cap = cv2.VideoCapture(0)
-cap.set(3, 640)
-cap.set(4, 480)
-
-# Initialize recognition status variables
-siddharth_recognized = False
-bhaskar_recognized = False
 
 def generate_frames():
-    global siddharth_recognized, bhaskar_recognized
-
+    cap = cv2.VideoCapture(0)
+    cap.set(3, 640)
+    cap.set(4, 480)
+    counter = 0
+    id=-1
+    bucket = storage.bucket()
     while True:
-        success, frame = cap.read()
+        success, img = cap.read()
+        
+        if not success:
+            print("Error capturing frame from the camera.")
+            continue
 
-        # Find all face locations in the current frame
-        face_locations = face_recognition.face_locations(frame)
-        face_encodings = face_recognition.face_encodings(frame, face_locations)
+        imgS = cv2.resize(img, (0, 0), None, 0.25, 0.25)
+        imgS = cv2.cvtColor(imgS, cv2.COLOR_BGR2RGB)
 
-        # Initialize face colors list with red (not recognized) for all faces
-        face_colors = [(0, 0, 255)] * len(face_locations)
+        faceCurFrame = face_recognition.face_locations(imgS)
+        encodeCurFrame = face_recognition.face_encodings(imgS, faceCurFrame)
 
-        # Check if any face is recognized
-        for i, face_encoding in enumerate(face_encodings):
-            # Compare the face with the known faces
-            matches = face_recognition.compare_faces(known_encodings, face_encoding, tolerance=0.50)
+        for encodeFace, faceLoc in zip(encodeCurFrame, faceCurFrame):
+            faceDis = face_recognition.face_distance(encodeListKnown, encodeFace)
+            matches = face_recognition.compare_faces(encodeListKnown, encodeFace,tolerance=0.5)
+            matchIndex = np.argmin(faceDis)
 
-            for j, match in enumerate(matches):
-                if match:
-                    face_colors[i] = (0, 255, 0)  # Green if recognized
-                    if j == 0:  # Assuming Siddharth is the first known person
-                        siddharth_recognized = True
-                        bhaskar_recognized = False  # Reset other recognition status
-                    elif j == 1:  # Assuming Bhaskar is the second known person
-                        bhaskar_recognized = True
-                        siddharth_recognized = False  # Reset other recognition status
+            y1, x2, y2, x1 = faceLoc
+            y1, x2, y2, x1 = int(y1 * 4), int(x2 * 4), int(y2 * 4), int(x1 * 4)
+            bbox = (x1, y1, x2 - x1, y2 - y1)
 
-        # Draw rectangles around each face with the determined colors
-        for (top, right, bottom, left), color in zip(face_locations, face_colors):
-            cv2.rectangle(frame, (left, top), (right, bottom), color, 2)
+            if matches[matchIndex]:
+                color = (0, 255, 0)  # Green rectangle for a match
+                id=studentIds[matchIndex]
+                if counter==0:
+                    counter=1
+                   
+            else:
+                color = (0, 0, 255)  # Red square for no match
+                # print("No match found")
+        
+            img = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[0] + bbox[2], bbox[1] + bbox[3]), color, 2)
+        if counter!=0:
+            if counter==1:
+                studentinfo=db.reference('Students/'+id).get()
+                 # Get the Image from the storage
+                blob = bucket.get_blob(f'Images/{id}.png')
+                array = np.frombuffer(blob.download_as_string(), np.uint8)
+                imgStudent = cv2.imdecode(array, cv2.COLOR_BGRA2BGR)
+                print(studentinfo)
+            counter+=1
+            
 
-        ret, buffer = cv2.imencode('.jpg', frame)
-        frame = buffer.tobytes()
 
+
+        _, buffer = cv2.imencode('.jpg', img)
+        imgencode = buffer.tobytes()
         yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+               b'Content-Type: image/jpeg\r\n\r\n' + imgencode + b'\r\n')
 
 @app.route('/')
 def index():
-    return render_template('index.html', siddharth_recognized=siddharth_recognized, bhaskar_recognized=bhaskar_recognized)
+    return render_template('index.html')
 
 @app.route('/video_feed')
 def video_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)
