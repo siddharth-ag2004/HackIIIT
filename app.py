@@ -68,7 +68,6 @@ def generate_frames():
         if counter!=0:
             if counter==1:
                 studentinfo=db.reference('Students/'+id).get()
-                 # Get the Image from the storage
                 blob = bucket.get_blob(f'Images/{id}.png')
                 array = np.frombuffer(blob.download_as_string(), np.uint8)
                 imgStudent = cv2.imdecode(array, cv2.COLOR_BGRA2BGR)
@@ -82,7 +81,7 @@ def generate_frames():
         imgencode = buffer.tobytes()
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + imgencode + b'\r\n')
-
+        
 @app.route('/')
 def index():
     return render_template('index.html')
