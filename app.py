@@ -11,7 +11,8 @@ import numpy as np
 from datetime import datetime
 studentinfo=None
 imgStudent=None
-cred = credentials.Certificate("/Users/siddharth/Desktop/Hackathon/Garvit/HackIIIT/serviceaccountkey.json")
+imgPath=None
+cred = credentials.Certificate("./serviceaccountkey.json")
 firebase_admin.initialize_app(cred, {
     'databaseURL': "https://imagedata-204da-default-rtdb.firebaseio.com/",
     'storageBucket': "imagedata-204da.appspot.com"
@@ -20,7 +21,7 @@ firebase_admin.initialize_app(cred, {
 bucket = storage.bucket()
 app = Flask(__name__)
 
-file = open('/Users/siddharth/Desktop/Hackathon/Garvit/HackIIIT/EncodeFile.p', 'rb')
+file = open('./EncodeFile.p', 'rb')
 encodeListKnownWithIds = pickle.load(file)
 file.close()
 encodeListKnown, studentIds = encodeListKnownWithIds
@@ -69,6 +70,7 @@ def generate_frames():
         if counter!=0:
             global studentinfo
             global imgStudent
+            global imgPath
             if counter==1:
                 studentinfo=db.reference('Students/'+id).get()
                  # Get the Image from the storage
@@ -76,6 +78,8 @@ def generate_frames():
                 array = np.frombuffer(blob.download_as_string(), np.uint8)
                 imgStudent = cv2.imdecode(array, cv2.COLOR_BGRA2BGR)
                 print(studentinfo)
+                imgPath='../static/'+studentinfo['name'].split(' ')[0]+'.png'
+                print(imgPath)
             counter+=1
             
 
@@ -89,7 +93,7 @@ def generate_frames():
 @app.route('/')
 def index():
     if 'studentinfo' in globals():
-        return render_template('index.html', studentinfo=studentinfo,imgStudent=imgStudent)
+        return render_template('index.html', studentinfo=studentinfo,imgPng=imgPath)
     else:
         # Render the template without studentinfo if it doesn't exist
         return render_template('index.html')
