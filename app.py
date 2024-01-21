@@ -10,7 +10,7 @@ from firebase_admin import storage
 import numpy as np
 from datetime import datetime
 
-cred = credentials.Certificate("serviceaccountkey.json")
+cred = credentials.Certificate("/Users/siddharth/Desktop/Hackathon/Garvit/HackIIIT/serviceaccountkey.json")
 firebase_admin.initialize_app(cred, {
     'databaseURL': "https://imagedata-204da-default-rtdb.firebaseio.com/",
     'storageBucket': "imagedata-204da.appspot.com"
@@ -19,7 +19,7 @@ firebase_admin.initialize_app(cred, {
 bucket = storage.bucket()
 app = Flask(__name__)
 
-file = open('EncodeFile.p', 'rb')
+file = open('/Users/siddharth/Desktop/Hackathon/Garvit/HackIIIT/EncodeFile.p', 'rb')
 encodeListKnownWithIds = pickle.load(file)
 file.close()
 encodeListKnown, studentIds = encodeListKnownWithIds
@@ -68,6 +68,7 @@ def generate_frames():
         if counter!=0:
             if counter==1:
                 studentinfo=db.reference('Students/'+id).get()
+                 # Get the Image from the storage
                 blob = bucket.get_blob(f'Images/{id}.png')
                 array = np.frombuffer(blob.download_as_string(), np.uint8)
                 imgStudent = cv2.imdecode(array, cv2.COLOR_BGRA2BGR)
@@ -81,7 +82,7 @@ def generate_frames():
         imgencode = buffer.tobytes()
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + imgencode + b'\r\n')
-        
+
 @app.route('/')
 def index():
     return render_template('index.html')
