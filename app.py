@@ -10,7 +10,7 @@ from firebase_admin import storage
 import numpy as np
 from datetime import datetime
 
-cred = credentials.Certificate("/Users/siddharth/Desktop/Hackathon/Garvit/HackIIIT/serviceaccountkey.json")
+cred = credentials.Certificate("./serviceaccountkey.json")
 firebase_admin.initialize_app(cred, {
     'databaseURL': "https://imagedata-204da-default-rtdb.firebaseio.com/",
     'storageBucket': "imagedata-204da.appspot.com"
@@ -19,7 +19,7 @@ firebase_admin.initialize_app(cred, {
 bucket = storage.bucket()
 app = Flask(__name__)
 
-file = open('/Users/siddharth/Desktop/Hackathon/Garvit/HackIIIT/EncodeFile.p', 'rb')
+file = open('./EncodeFile.p', 'rb')
 encodeListKnownWithIds = pickle.load(file)
 file.close()
 encodeListKnown, studentIds = encodeListKnownWithIds
