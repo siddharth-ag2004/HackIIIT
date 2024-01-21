@@ -1,7 +1,7 @@
 .card-client {
     background: #2cb5a0;
-    width: 16rem;
-    margin-left: 10%;
+    width: 20%;
+    margin-left: 20%;
     /* margin-right: 35%; */
     /* margin-top:15%; */
     margin-top:15%;
@@ -153,10 +153,12 @@ body {
 }
 .video-container {
   /* margin-right: 100px; Adjust the margin as needed */
+  width: 30%;
+  height: 30%;
   border: 4px solid #08e5ed;
   margin-right: 20%;
   float: right;
-  margin-top: 5%;
+  margin-top: 10%;
 }
 
 footer {
