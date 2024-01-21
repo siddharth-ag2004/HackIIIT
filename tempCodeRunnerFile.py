@@ -1,31 +1,3 @@
-from flask import Flask, render_template, Response
-import cv2
-import numpy as np
-import pickle
-import face_recognition
-import firebase_admin
-from firebase_admin import credentials
-from firebase_admin import db
-from firebase_admin import storage
-import numpy as np
-from datetime import datetime
-studentinfo=None
-imgStudent=None
-cred = credentials.Certificate("/Users/siddharth/Desktop/Hackathon/Garvit/HackIIIT/serviceaccountkey.json")
-firebase_admin.initialize_app(cred, {
-    'databaseURL': "https://imagedata-204da-default-rtdb.firebaseio.com/",
-    'storageBucket': "imagedata-204da.appspot.com"
-})
-
-bucket = storage.bucket()
-app = Flask(__name__)
-
-file = open('/Users/siddharth/Desktop/Hackathon/Garvit/HackIIIT/EncodeFile.p', 'rb')
-encodeListKnownWithIds = pickle.load(file)
-file.close()
-encodeListKnown, studentIds = encodeListKnownWithIds
-
-
 def generate_frames():
     cap = cv2.VideoCapture(0)
     cap.set(3, 640)
@@ -67,8 +39,6 @@ def generate_frames():
         
             img = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[0] + bbox[2], bbox[1] + bbox[3]), color, 2)
         if counter!=0:
-            global studentinfo
-            global imgStudent
             if counter==1:
                 studentinfo=db.reference('Students/'+id).get()
                  # Get the Image from the storage
@@ -85,19 +55,3 @@ def generate_frames():
         imgencode = buffer.tobytes()
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + imgencode + b'\r\n')
-
-@app.route('/')
-def index():
-    if 'studentinfo' in globals():
-        return render_template('index.html', studentinfo=studentinfo,imgStudent=imgStudent)
-    else:
-        # Render the template without studentinfo if it doesn't exist
-        return render_template('index.html')
-   
-
-@app.route('/video_feed')
-def video_feed():
-    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
-
-if __name__ == "__main__":
-    app.run(debug=True)
