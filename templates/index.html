@@ -7,7 +7,13 @@
     <title>Face Att</title>
 </head>
 <body>
-    <img src="{{ url_for('video_feed') }}" alt="Face Att" width="640" height="480">
+    <header>
+        <h1>Face-Recognition-Attendance-System</h1>
+    </header>
+    <!-- <img src="{{ url_for('video_feed') }}" alt="Face Att" width="640" height="480"> -->
+    <div class="video-container">
+        <img src="{{ url_for('video_feed') }}" alt="Face Att" width="640" height="480">
+    </div>
     <div class="card-client">
         <div class="user-picture">
             <svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg">
@@ -45,5 +51,8 @@
             </a>
         </div>
     </div>
+    <footer>
+        <p>&copy; 2024 Face-Recognition-Attendance-System | Designed by <a href="#" target="_blank">Garvit, Siddharth, Shreyansh & Priet</a></p>
+    </footer>
 </body>
 </html>

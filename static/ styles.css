@@ -1,6 +1,9 @@
 .card-client {
     background: #2cb5a0;
-    width: 13rem;
+    width: 16rem;
+    margin-left: 550px;
+    /* margin-right: 350px; */
+    margin-top:200px;
     padding-top: 25px;
     padding-bottom: 25px;
     padding-left: 20px;
@@ -16,6 +19,7 @@
   
   .card-client:hover {
     transform: translateY(-10px);
+   
   }
   
   .user-picture {
@@ -77,6 +81,7 @@
   /*-- Tooltip Social Media --*/
   .tooltip-social {
     background: #262626;
+    
     display: block;
     position: absolute;
     bottom: 0;
@@ -111,3 +116,68 @@
     opacity: 1;
     transform: translate(-50%, -130%);
   }
+  header {
+    background-color: #3498db;
+    padding: 20px;
+    text-align: center;
+    color: #fff;
+}
+
+header h1 {
+    margin: 0;
+}
+
+body {
+  background-image: url('./pic.jpg'); /* Replace with the actual path to your image */
+  background-blend-mode: lighten;
+  background-size: cover; /* Adjust to your preference */
+  background-position: center; /* Adjust to your preference */
+  background-repeat: no-repeat; /* Adjust to your preference */
+  margin: 0; /* Remove default margin */
+  font-family: Arial, sans-serif; /* Set a default font family */
+ 
+}
+.image{
+  background-image: url("./pic.jpg");
+  height: 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  filter: blur(5px);
+  -webkit-filter: blur(5px);
+  -moz-filter: blur(5px);
+  -o-filter: blur(5px);
+  -ms-filter: blur(5px);
+}
+.video-container {
+  /* margin-right: 100px; Adjust the margin as needed */
+  border: 4px solid #7cdacc;
+  margin-right: 350px;
+  float: right;
+  margin-top: 200px;
+}
+
+footer {
+  background-color: #3498db;
+  color: #fff;
+  text-align: center;
+  padding: 20px;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+
+footer p {
+  margin: 0;
+  font-size: 16px;
+}
+
+footer a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
